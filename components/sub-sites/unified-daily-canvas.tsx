@@ -752,11 +752,39 @@ function SysopFlowSection() {
 // ---------- Command Bar & Self‑Tests
 const CommandBar = ({ show, onClose, actions }) => {
   const [q, setQ] = useState("")
+  const [selectedIndex, setSelectedIndex] = useState(0)
   const list = useMemo(() => actions.filter((a) => a.label.toLowerCase().includes(q.toLowerCase())), [q, actions])
   const box = useRef(null)
+
+  useEffect(() => {
+    setSelectedIndex(0)
+  }, [list])
+
   useEffect(() => {
     if (show) setTimeout(() => box.current?.focus(), 50)
   }, [show])
+
+  useEffect(() => {
+    if (!show) return
+
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        setSelectedIndex((prev) => (prev + 1) % list.length)
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault()
+        setSelectedIndex((prev) => (prev - 1 + list.length) % list.length)
+      } else if (e.key === "Enter" && list[selectedIndex]) {
+        e.preventDefault()
+        list[selectedIndex].run()
+        onClose()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [show, list, selectedIndex, onClose])
+
   if (!show) return null
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/60 backdrop-blur">
@@ -785,7 +813,10 @@ const CommandBar = ({ show, onClose, actions }) => {
                 a.run()
                 onClose()
               }}
-              className="block w-full text-left p-3 hover:bg-zinc-900"
+              className={cx(
+                "block w-full text-left p-3 hover:bg-zinc-900",
+                i === selectedIndex && "bg-emerald-900/30 border-l-2 border-emerald-500",
+              )}
             >
               <div className="text-sm text-white">{a.label}</div>
               {a.hint && <div className="text-[11px] text-zinc-500">{a.hint}</div>}
