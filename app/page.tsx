@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { BookOpen, Terminal, Sparkles, Zap, ChevronRight, PanelsTopLeft, Palette } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { BookOpen, Terminal, Sparkles, Zap, ChevronRight, PanelsTopLeft, Palette, Network } from "lucide-react"
+import { HeroWithDithering } from "@/components/hero-with-dithering"
 
 export default function HomePage() {
   const sites = [
@@ -52,33 +52,19 @@ export default function HomePage() {
       color: "purple",
       tags: ["Design", "Components", "Tokens"],
     },
+    {
+      id: "ast-viewer",
+      name: "AST Viewer",
+      description: "Cognitive prosthetic for visualizing hierarchical conversation structures and concept evolution",
+      icon: Network,
+      color: "emerald",
+      tags: ["Visualization", "AST", "Cognition"],
+    },
   ]
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-4xl">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-balance">FLOAT Multi-Site Platform</h1>
-            <p className="text-xl text-muted-foreground mb-8 text-pretty">
-              A modular container for self-contained sub-sites. Each section maintains its own functionality, styles,
-              and content while seamlessly integrating into a unified navigation experience.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" asChild>
-                <Link href="/sites/scampi-deep-dive">
-                  Explore Sites
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="#sites">View All</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <HeroWithDithering />
 
       {/* Sites Grid */}
       <div id="sites" className="container mx-auto px-6 py-16">

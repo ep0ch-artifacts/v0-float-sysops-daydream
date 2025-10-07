@@ -15,6 +15,7 @@ import {
   X,
   PanelsTopLeft,
   Palette,
+  Network,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -56,6 +57,12 @@ const sites = [
     name: "Design System",
     icon: Palette,
     description: "FLOAT UI playground",
+  },
+  {
+    id: "ast-viewer",
+    name: "AST Viewer",
+    icon: Network,
+    description: "Cognitive tree visualization",
   },
 ]
 
