@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BookOpen, Terminal, Sparkles, Zap, ChevronRight, PanelsTopLeft } from "lucide-react"
+import { BookOpen, Terminal, Sparkles, Zap, ChevronRight, PanelsTopLeft, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function HomePage() {
@@ -43,6 +43,14 @@ export default function HomePage() {
       icon: PanelsTopLeft,
       color: "emerald",
       tags: ["Productivity", "Tracking", "Workflow"],
+    },
+    {
+      id: "design-system",
+      name: "Design System",
+      description: "Interactive FLOAT UI playground with tokens, components, and ritual grammar parsing",
+      icon: Palette,
+      color: "purple",
+      tags: ["Design", "Components", "Tokens"],
     },
   ]
 

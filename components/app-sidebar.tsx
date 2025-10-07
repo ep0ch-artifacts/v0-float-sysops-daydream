@@ -3,7 +3,19 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, Terminal, Sparkles, Zap, Home, ChevronRight, Search, Menu, X, PanelsTopLeft } from "lucide-react"
+import {
+  BookOpen,
+  Terminal,
+  Sparkles,
+  Zap,
+  Home,
+  ChevronRight,
+  Search,
+  Menu,
+  X,
+  PanelsTopLeft,
+  Palette,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,6 +50,12 @@ const sites = [
     name: "Daily Canvas",
     icon: PanelsTopLeft,
     description: "Unified productivity dashboard",
+  },
+  {
+    id: "design-system",
+    name: "Design System",
+    icon: Palette,
+    description: "FLOAT UI playground",
   },
 ]
 
