@@ -1,5 +1,16 @@
 import Link from "next/link"
-import { BookOpen, Terminal, Sparkles, Zap, ChevronRight, PanelsTopLeft, Palette, Network } from "lucide-react"
+import { Suspense } from "react"
+import {
+  BookOpen,
+  Terminal,
+  Sparkles,
+  Zap,
+  ChevronRight,
+  PanelsTopLeft,
+  Palette,
+  Network,
+  GitBranch,
+} from "lucide-react"
 import { HeroWithDithering } from "@/components/hero-with-dithering"
 
 export default function HomePage() {
@@ -60,11 +71,32 @@ export default function HomePage() {
       color: "emerald",
       tags: ["Visualization", "AST", "Cognition"],
     },
+    {
+      id: "ast-prompts",
+      name: "AST Prompts",
+      description: "LLM prompts as Abstract Syntax Trees - structured reasoning for consciousness technology",
+      icon: GitBranch,
+      color: "purple",
+      tags: ["Prompts", "AST", "Engineering"],
+    },
+    {
+      id: "sysop-dashboard",
+      name: "Sysop Dashboard",
+      description:
+        "BBS-style conversation AST viewer with timeline, receipts, and themed panels for debugging workflows",
+      icon: Terminal,
+      color: "green",
+      tags: ["BBS", "AST", "Debugging"],
+    },
   ]
 
   return (
     <div className="min-h-screen bg-background">
-      <HeroWithDithering />
+      <Suspense
+        fallback={<div className="border-b border-border h-[400px] md:h-[600px] bg-background animate-pulse" />}
+      >
+        <HeroWithDithering />
+      </Suspense>
 
       {/* Sites Grid */}
       <div id="sites" className="container mx-auto px-6 py-16">

@@ -16,6 +16,7 @@ import {
   PanelsTopLeft,
   Palette,
   Network,
+  GitBranch,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -63,6 +64,18 @@ const sites = [
     name: "AST Viewer",
     icon: Network,
     description: "Cognitive tree visualization",
+  },
+  {
+    id: "ast-prompts",
+    name: "AST Prompts",
+    icon: GitBranch,
+    description: "Structured prompt engineering",
+  },
+  {
+    id: "sysop-dashboard",
+    name: "Sysop Dashboard",
+    icon: Terminal,
+    description: "BBS-style conversation AST viewer",
   },
 ]
 

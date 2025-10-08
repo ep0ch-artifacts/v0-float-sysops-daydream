@@ -4,8 +4,19 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
 import { Dithering } from "@paper-design/shaders-react"
+import { useEffect } from "react"
 
 export function HeroWithDithering() {
+  useEffect(() => {
+    const handleError = (e: ErrorEvent) => {
+      if (e.message.includes("ResizeObserver loop")) {
+        e.stopImmediatePropagation()
+      }
+    }
+    window.addEventListener("error", handleError)
+    return () => window.removeEventListener("error", handleError)
+  }, [])
+
   return (
     <div className="border-b border-border relative overflow-hidden">
       <div className="flex flex-col md:flex-row">
@@ -32,7 +43,7 @@ export function HeroWithDithering() {
         </div>
 
         {/* Right side - Dithering Effect */}
-        <div className="w-full md:w-1/2 h-64 md:h-auto min-h-[400px] relative">
+        <div className="w-full md:w-1/2 h-[400px] md:h-[600px] relative">
           <Dithering
             style={{ height: "100%", width: "100%" }}
             colorBack="hsl(0, 0%, 0%)"
