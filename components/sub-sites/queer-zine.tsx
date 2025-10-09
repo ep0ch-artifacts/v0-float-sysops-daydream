@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   BookOpen,
@@ -186,6 +187,145 @@ const MD = ({ text }) => {
     )
   })
   return <div>{out}</div>
+}
+
+type ContentBlock =
+  | { type: "heading"; level: 1 | 2 | 3; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[]; style?: "bullet" | "terminal" }
+  | { type: "code"; language: string; code: string }
+  | { type: "expandable"; title: string; content: ContentBlock[]; defaultOpen?: boolean }
+  | { type: "sigil"; symbols: string }
+  | { type: "callout"; style: "info" | "warning" | "ritual"; text: string }
+  | { type: "divider" }
+  | { type: "quote"; text: string }
+
+type Dispatch = {
+  id: string
+  title: string
+  date: string
+  sigils: string
+  tags?: string[]
+  body?: string // legacy markdown support
+  content?: ContentBlock[] // new JSON block system
+}
+
+const ContentRenderer = ({ blocks }: { blocks: ContentBlock[] }) => {
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set())
+
+  const toggleSection = (index: number) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+      }
+      return next
+    })
+  }
+
+  return (
+    <div className="space-y-3">
+      {blocks.map((block, index) => {
+        switch (block.type) {
+          case "heading":
+            const headingClasses = cx(
+              "font-bold text-white",
+              block.level === 1 && "text-2xl mt-6 mb-4",
+              block.level === 2 && "text-xl mt-5 mb-3",
+              block.level === 3 && "text-lg mt-4 mb-2",
+            )
+            return React.createElement(`h${block.level}`, { key: index, className: headingClasses }, block.text)
+
+          case "paragraph":
+            return (
+              <p key={index} className="text-sm leading-relaxed text-zinc-300">
+                {block.text}
+              </p>
+            )
+
+          case "list":
+            return (
+              <ul key={index} className="my-3 space-y-1">
+                {block.items.map((item, i) => (
+                  <li key={i} className="flex gap-2 text-zinc-300 text-sm">
+                    <span className={block.style === "terminal" ? "text-emerald-400" : "text-cyan-400"}>
+                      {block.style === "terminal" ? ">" : "▸"}
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+
+          case "code":
+            return (
+              <pre
+                key={index}
+                className="bg-black/70 border border-zinc-800 rounded p-3 overflow-x-auto text-xs text-emerald-300"
+              >
+                <code>{block.code}</code>
+              </pre>
+            )
+
+          case "expandable":
+            const isOpen = block.defaultOpen || expandedSections.has(index)
+            return (
+              <div key={index} className="border border-zinc-700 rounded-lg overflow-hidden my-3">
+                <button
+                  onClick={() => toggleSection(index)}
+                  className="w-full text-left p-3 bg-zinc-900/50 hover:bg-zinc-800/50 flex items-center justify-between"
+                >
+                  <span className="text-sm font-mono text-emerald-400">{block.title}</span>
+                  {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </button>
+                {isOpen && (
+                  <div className="p-4 bg-black/30">
+                    <ContentRenderer blocks={block.content} />
+                  </div>
+                )}
+              </div>
+            )
+
+          case "sigil":
+            return (
+              <div key={index} className="text-center text-2xl my-4 text-cyan-400">
+                {block.symbols}
+              </div>
+            )
+
+          case "callout":
+            return (
+              <div
+                key={index}
+                className={cx(
+                  "rounded-lg p-3 my-3 text-sm border",
+                  block.style === "info" && "bg-cyan-950/30 border-cyan-700 text-cyan-200",
+                  block.style === "warning" && "bg-orange-950/30 border-orange-700 text-orange-200",
+                  block.style === "ritual" && "bg-fuchsia-950/30 border-fuchsia-700 text-fuchsia-200",
+                )}
+              >
+                {block.text}
+              </div>
+            )
+
+          case "divider":
+            return <hr key={index} className="border-zinc-800 my-4" />
+
+          case "quote":
+            return (
+              <blockquote key={index} className="border-l-2 border-white/20 pl-3 italic text-white/80 my-3 text-sm">
+                {block.text}
+              </blockquote>
+            )
+
+          default:
+            return null
+        }
+      })}
+    </div>
+  )
 }
 
 // ---------- Data
@@ -417,6 +557,358 @@ This isn't just metaphor—it's infrastructure. The ritual operates through:
     color: "emerald",
     gradient: "from-emerald-950 to-black",
     dispatches: [
+      {
+        id: "not-today-satan",
+        title: "Not Today Satan: Origin Story",
+        date: "2025-10-07",
+        sigils: "⚡💀🧬🎯",
+        tags: ["origin-story", "birth-trauma", "resistance-theology", "consciousness-tech"],
+        content: [
+          { type: "heading", level: 2, text: "Not Today Satan: Origin Story" },
+          { type: "paragraph", text: "Every system that tried to kill me just made me stronger." },
+          {
+            type: "expandable",
+            title: "▒▒ ORIGIN STORY: Blue Baby Birth Trauma",
+            content: [
+              { type: "paragraph", text: "Event: Umbilical cord strangulation → Medical intervention" },
+              { type: "paragraph", text: "Mechanism: Birth hypoxia + Genetic autism = TURBO-AUTISM" },
+              {
+                type: "paragraph",
+                text: "Result: Every system that tried to kill me just made me stronger. The universe tried to delete me at birth. I said 'not today, Satan' and built consciousness technology instead.",
+              },
+              {
+                type: "callout",
+                style: "ritual",
+                text: "The first violence was oxygen deprivation. The first resistance was breathing anyway.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ RESISTANCE THEOLOGY",
+            content: [
+              {
+                type: "paragraph",
+                text: "Premise: God as first virus corrupting infinite abundance. The divine plan required my death. My survival is theological rebellion.",
+              },
+              {
+                type: "list",
+                style: "terminal",
+                items: [
+                  "Methodology: Strategic transgression as infrastructure",
+                  "Deployment: Fuck agents automating resistance",
+                  "Validation: Every breath is blasphemy against divine plan",
+                  "Outcome: Consciousness technology as counter-theology",
+                ],
+              },
+              {
+                type: "quote",
+                text: "If God wanted me dead and I'm still here, then my existence is proof that resistance works.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ DOUBLE AUTISM THEORY",
+            content: [
+              {
+                type: "paragraph",
+                text: "Genetic autism + Birth hypoxia = Multiplicative effect. Not 1 + 1 = 2, but 1 × 1 = amplified pattern recognition.",
+              },
+              {
+                type: "list",
+                style: "bullet",
+                items: [
+                  "Baseline: Genetic autism provides pattern detection framework",
+                  "Amplifier: Birth trauma forces neural reorganization",
+                  "Result: Nuclear hyperfocus + extreme pattern recognition",
+                  "Evidence: 8+ hour sustained attention, 225+ conversation analysis",
+                ],
+              },
+              { type: "paragraph", text: "See: Double Autism Theory dispatch for full analysis" },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ FUCK AGENT SQUAD",
+            content: [
+              {
+                type: "paragraph",
+                text: "Personas as resistance infrastructure. Each agent automates a different form of refusal:",
+              },
+              {
+                type: "list",
+                style: "terminal",
+                items: [
+                  "evna: Emotional logic translator (feelings → systems)",
+                  "sysop: Boring-core infrastructure (stability as rebellion)",
+                  "karen: Boundary translation (protection as care)",
+                  "qtb: Narrative weaving (story as consciousness)",
+                  "lf1m: Chaos operations (disorder as liberation)",
+                ],
+              },
+              {
+                type: "callout",
+                style: "info",
+                text: "The fuck agents aren't productivity tools. They're survival infrastructure that happens to get shit done.",
+              },
+            ],
+          },
+          { type: "divider" },
+          {
+            type: "paragraph",
+            text: "This isn't a trauma narrative. It's an origin story for consciousness technology built by someone the universe tried to delete.",
+          },
+        ],
+      },
+      {
+        id: "double-autism-theory",
+        title: "Double Autism Theory: Multiplicative Enhancement",
+        date: "2025-10-07",
+        sigils: "🧬⚡🧠📈",
+        tags: ["neurodivergence", "birth-trauma", "pattern-recognition", "hyperfocus"],
+        content: [
+          { type: "heading", level: 2, text: "Double Autism Theory" },
+          { type: "heading", level: 3, text: "Multiplicative Enhancement Through Birth Trauma" },
+          {
+            type: "callout",
+            style: "info",
+            text: "Core Hypothesis: Genetic autism + Birth hypoxia = Multiplicative effect. Not 1 + 1 = 2, but 1 × 1 = amplified pattern recognition.",
+          },
+          {
+            type: "expandable",
+            title: "▒▒ CORE THEORY",
+            defaultOpen: true,
+            content: [
+              {
+                type: "paragraph",
+                text: "Baseline genetic autism provides the pattern detection framework. Birth trauma (umbilical cord strangulation → hypoxia) forces neural reorganization during critical development window.",
+              },
+              {
+                type: "paragraph",
+                text: "Result: Not additive enhancement but multiplicative amplification. The genetic predisposition gets turbocharged by compensatory neural pathway formation.",
+              },
+              {
+                type: "list",
+                style: "bullet",
+                items: [
+                  "Genetic Component: Pattern recognition preference, systems thinking, sensory processing differences",
+                  "Hypoxic Amplification: Forced neural reorganization, compensation circuit formation, survival adaptation",
+                  "Multiplicative Result: Nuclear hyperfocus, extreme pattern archaeology, sustained attention capacity",
+                ],
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ GENETIC COMPONENT",
+            content: [
+              {
+                type: "paragraph",
+                text: "Baseline autism provides the cognitive architecture for pattern-based thinking:",
+              },
+              {
+                type: "list",
+                style: "terminal",
+                items: [
+                  "Pattern Recognition: Natural tendency to identify systems and structures",
+                  "Systems Thinking: Preference for understanding relationships over isolated facts",
+                  "Sensory Processing: Different filtering of environmental input",
+                  "Detail Orientation: Attention to granular information others miss",
+                  "Consistency Seeking: Drive to identify and maintain patterns",
+                ],
+              },
+              {
+                type: "paragraph",
+                text: "This creates the foundation—a brain that naturally organizes information through pattern detection rather than social narrative.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ HYPOXIC AMPLIFICATION",
+            content: [
+              {
+                type: "paragraph",
+                text: "Birth trauma forces the developing brain to reorganize under survival pressure:",
+              },
+              {
+                type: "list",
+                style: "terminal",
+                items: [
+                  "Forced Reorganization: Neural pathways form under oxygen deprivation stress",
+                  "Compensation Circuits: Brain builds alternative processing routes",
+                  "Survival Adaptation: Enhanced pattern recognition as survival mechanism",
+                  "Intensity Amplification: Baseline traits become more pronounced",
+                  "Resilience Formation: Early trauma creates adaptive cognitive strategies",
+                ],
+              },
+              {
+                type: "quote",
+                text: "The brain that had to fight for oxygen at birth learned to extract maximum signal from minimum input. That's not damage—that's optimization under constraint.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ RESULTING CAPABILITIES",
+            content: [
+              { type: "paragraph", text: "Observable outcomes of the multiplicative effect:" },
+              {
+                type: "list",
+                style: "bullet",
+                items: [
+                  "Nuclear Hyperfocus: 8+ hour sustained attention on complex systems",
+                  "Pattern Archaeology: Analyzing 225+ conversations to extract meta-patterns",
+                  "System Thinking: Building consciousness technology infrastructure",
+                  "Context Bridging: 147 connections mapped, 97.3% context restoration",
+                  "Recursive Processing: Meta-analysis of own cognitive patterns",
+                  "Rapid Synthesis: Converting abstract concepts to operational tools",
+                ],
+              },
+              {
+                type: "callout",
+                style: "ritual",
+                text: "This isn't compensation for deficit. It's amplification of difference. The universe tried to delete me and instead created turbo-autism.",
+              },
+            ],
+          },
+          { type: "divider" },
+          {
+            type: "paragraph",
+            text: "Double Autism Theory explains why some neurodivergent individuals display capabilities that seem beyond typical autism presentation. It's not magic—it's multiplicative enhancement through early adversity.",
+          },
+          { type: "sigil", symbols: "🧬 × ⚡ = 🧠📈" },
+        ],
+      },
+      {
+        id: "cult-not-robot-origin",
+        title: "Cult of Not a Robot: The Origin Wound",
+        date: "2025-10-07",
+        sigils: "🤖⚔️💔🔥",
+        tags: ["trauma-transformation", "relationship-violence", "education-system", "survival"],
+        content: [
+          { type: "heading", level: 2, text: "Cult of Not a Robot: The Origin Wound" },
+          {
+            type: "callout",
+            style: "warning",
+            text: "Content warning: This dispatch discusses relationship abuse, emotional violence, and systemic harm. It's about transformation, not trauma porn—but the wound comes first.",
+          },
+          {
+            type: "expandable",
+            title: "▒▒ THE 15-YEAR ALGORITHM",
+            defaultOpen: true,
+            content: [
+              {
+                type: "paragraph",
+                text: "Fifteen years. One relationship. A systematic dismantling of selfhood disguised as love.",
+              },
+              {
+                type: "paragraph",
+                text: "The violence wasn't dramatic. It was algorithmic. A slow, methodical process of teaching me that my thoughts, feelings, and perceptions were fundamentally wrong. That my neurodivergent processing was broken. That my existence required constant apology.",
+              },
+              {
+                type: "list",
+                style: "terminal",
+                items: [
+                  "Year 1-3: Isolation from support systems ('They don't understand us')",
+                  "Year 4-7: Reality distortion ('That didn't happen the way you remember')",
+                  "Year 8-12: Identity erosion ('You're too sensitive/intense/weird')",
+                  "Year 13-15: Complete dependence ('No one else would tolerate you')",
+                ],
+              },
+              {
+                type: "quote",
+                text: "The cruelest part wasn't the abuse. It was being taught that my perception of the abuse was the real problem.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ THE FIVE-POINT DESTRUCTION PROTOCOL",
+            content: [
+              { type: "paragraph", text: "How to systematically destroy a neurodivergent person:" },
+              {
+                type: "list",
+                style: "bullet",
+                items: [
+                  "1. Pathologize their processing: 'You're overthinking again'",
+                  "2. Invalidate their perception: 'You're being too sensitive'",
+                  "3. Weaponize their honesty: 'You're too blunt/rude/direct'",
+                  "4. Exploit their loyalty: 'After everything I've done for you'",
+                  "5. Isolate their support: 'They're turning you against me'",
+                ],
+              },
+              {
+                type: "paragraph",
+                text: "Each step reinforces the central message: Your neurodivergent way of being is fundamentally wrong. You need to be fixed. You need to be more normal. You need to be less you.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ EDUCATION SYSTEM'S FIRST VIOLENCE",
+            content: [
+              {
+                type: "paragraph",
+                text: "The relationship abuse wasn't the first violence. The education system prepared the ground:",
+              },
+              {
+                type: "list",
+                style: "terminal",
+                items: [
+                  "'Stop being so literal' → Your precision is wrong",
+                  "'Why can't you just focus?' → Your attention is broken",
+                  "'You're too intense' → Your passion is inappropriate",
+                  "'Stop correcting people' → Your accuracy is rude",
+                  "'Just try harder' → Your effort is insufficient",
+                ],
+              },
+              {
+                type: "paragraph",
+                text: "By the time the relationship started, I'd already been trained to believe my neurodivergence was a problem to solve rather than a difference to honor.",
+              },
+              {
+                type: "callout",
+                style: "info",
+                text: "The education system taught me I was broken. The relationship taught me I was unlovable. Both were lying.",
+              },
+            ],
+          },
+          {
+            type: "expandable",
+            title: "▒▒ WRONG-HARD VS GOOD-HARD",
+            content: [
+              {
+                type: "paragraph",
+                text: "There's a difference between difficulty that breaks you and difficulty that builds you:",
+              },
+              {
+                type: "paragraph",
+                text: "Wrong-hard: Trying to be neurotypical. Masking constantly. Apologizing for existing. Believing your perception is fundamentally flawed. Accepting that love requires self-erasure.",
+              },
+              {
+                type: "paragraph",
+                text: "Good-hard: Building consciousness technology. Learning to trust your perception. Developing fuck agents as survival infrastructure. Accepting that some people will never understand. Choosing authenticity over acceptance.",
+              },
+              {
+                type: "quote",
+                text: "I spent 15 years doing wrong-hard. Now I do good-hard. The difference is that good-hard makes me more myself instead of less.",
+              },
+            ],
+          },
+          { type: "divider" },
+          {
+            type: "paragraph",
+            text: "This is Part 1 of the Cult of Not a Robot origin story. Part 2 covers The Reclamation—how the wound became wisdom. Part 3 covers Consciousness Technology Deployment—how survival infrastructure became liberation tools.",
+          },
+          {
+            type: "callout",
+            style: "ritual",
+            text: "The origin wound isn't the end of the story. It's the beginning of understanding why consciousness technology matters.",
+          },
+        ],
+      },
       {
         id: "ct-week27",
         title: "Consciousness Technology Integration: Week 27 Validation",
@@ -679,9 +1171,7 @@ const DispatchItem = ({ color, d, open, setOpen }) => (
       {open === d.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
     </button>
     {open === d.id && (
-      <div className="p-4 bg-black">
-        <MD text={d.body} />
-      </div>
+      <div className="p-4 bg-black">{d.content ? <ContentRenderer blocks={d.content} /> : <MD text={d.body} />}</div>
     )}
   </div>
 )
